@@ -18,6 +18,7 @@ class Player(Sprite):
         self.x = x * TILESIZE
         self.y = y * TILESIZE
         self.speed = 300
+        self.coinCount = 0
 
     # def move(self, dx = 0, dy = 0):
     #     self.x += dx
@@ -43,6 +44,8 @@ class Player(Sprite):
         if hits:
             if str(hits[0].__class__.__name__) == "PowerUp":
                 self.speed = 500
+            if str(hits[0].__class__.__name__) == "Coins":
+                self.coinCount += 1
 
 
     def collide_with_walls(self, dir):
@@ -78,6 +81,7 @@ class Player(Sprite):
         # add y collision later
         self.collide_with_walls('y')
         self.collide_with_group(self.game.power_ups, True)
+        self.collide_with_group(self.game.coins, True)
         self.rect.width = self.rect.width
         self.rect.height = self.rect.height
 
@@ -99,6 +103,19 @@ class PowerUp(Sprite):
     def __init__(self, game, x, y):
         # add powerup groups later....
         self.groups = game.all_sprites, game.power_ups
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE, TILESIZE))
+        self.image.fill(BLACK)
+        self.rect = self.image.get_rect()
+        self.x = x
+        self.y = y
+        self.rect.x = x * TILESIZE
+        self.rect.y = y * TILESIZE
+
+class Coins(Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.coins
         Sprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((TILESIZE, TILESIZE))
