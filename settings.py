@@ -3,7 +3,7 @@ TITLE = "GAME"
 
 FPS = 30
 
-PLAYER_SPEED = 300
+# PLAYER_SPEED = 300
 
 # 32 grids wide
 WIDTH = 1024
