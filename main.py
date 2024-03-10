@@ -37,6 +37,7 @@ class Game:
         self.walls = pg.sprite.Group()
         self.power_ups = pg.sprite.Group()
         self.coins = pg.sprite.Group()
+        self.enemies = pg.sprite.Group()
         #self.player = Player(self, 10, 10)
         #for x in range(10, 20):
         #    Wall(self, x, 5)
@@ -50,6 +51,8 @@ class Game:
                     PowerUp(self, col, row)
                 if tile == 'C':
                     Coins(self, col, row)
+                if tile == 'E':
+                    Enemies(self, col, row)
 
     def run(self):
         self.playing = True
@@ -113,7 +116,7 @@ class Game:
 #Making and running the video game
 g = Game()
 # g.show_start_screen()
-while True:
+while (True):
     g.new()
     g.run()
     # g.show_go_screen()
