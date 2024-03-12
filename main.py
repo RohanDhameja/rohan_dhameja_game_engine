@@ -24,6 +24,14 @@ class Game:
     #load save game data etc...
     def load_data(self):
         game_folder = path.dirname(__file__)
+        self.img_folder = path.join(game_folder, 'images')
+
+        self.speed_powerup_img = pg.image.load(path.join(self.img_folder, 'speed_powerup.jpg')).convert_alpha()
+        self.enemy_img = pg.image.load(path.join(self.img_folder, 'enemy.jpg')).convert_alpha()
+        self.player_img = pg.image.load(path.join(self.img_folder, 'hero.jpg')).convert_alpha()
+        self.coin_img = pg.image.load(path.join(self.img_folder, 'coin.jpg')).convert_alpha()
+
+
         self.map_data = []
         with open(path.join(game_folder, 'map.txt'), 'rt') as f:
             for line in f:
@@ -88,7 +96,7 @@ class Game:
         self.screen.fill(BGCOLOR)
         self.draw_grid()
         self.all_sprites.draw(self.screen)
-        self.draw_text(self.screen, "str(self.coinCount)", 42, BLACK, 1, 1)
+        self.draw_text(self.screen, "str(self.coinCount)\nstr(self.hitpoints)", 42, BLACK, 1, 1)
         pg.display.flip()
 
     # Take input from keyboard and move player
