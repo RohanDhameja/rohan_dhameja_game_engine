@@ -5,6 +5,7 @@ import pygame as pg
 import sys
 from settings import *
 from sprites import *
+from utils import *
 from random import randint
 from os import path
 from time import sleep
@@ -40,6 +41,7 @@ class Game:
                 # print(enumerate(self.map_data))
 
     def new(self):
+        self.countdown = Timer(self)
         # init all variables, setup groups, instantiate classes
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
@@ -76,6 +78,7 @@ class Game:
 
     def update(self):
         self.all_sprites.update()
+        self.countdown.ticking()
 
     # Create a grid with dimensions WIDTH and HEIGHT
     def draw_grid(self):
@@ -96,7 +99,8 @@ class Game:
         self.screen.fill(BGCOLOR)
         self.draw_grid()
         self.all_sprites.draw(self.screen)
-        self.draw_text(self.screen, "str(self.coinCount)\nstr(self.hitpoints)", 42, BLACK, 1, 1)
+        self.draw_text(self.screen, ("Coins: " + str(self.player.coinCount) + ", Hitpoints: " + str(self.player.hitpoints)), 42, BLACK, 1, 1)
+        # self.draw_text(self.screen, "cool" + str(self.player.cooling), 30, BLACK, 10, 1)
         pg.display.flip()
 
     # Take input from keyboard and move player

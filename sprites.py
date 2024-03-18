@@ -19,6 +19,8 @@ class Player(Sprite):
         self.speed = 300
         self.coinCount = 0
         self.hitpoints = 10
+        self.cooling = False
+        self.status = ""
 
     # def move(self, dx = 0, dy = 0):
     #     self.x += dx
@@ -43,10 +45,14 @@ class Player(Sprite):
         hits = pg.sprite.spritecollide(self, group, kill)
         if hits:
             if str(hits[0].__class__.__name__) == "PowerUp":
-                self.speed = 500
+                self.game.countdown.cd = 5
+                self.cooling = True
+                # print(effect)
+                # print(self.cooling)
+                self.status = "Flash"
             if str(hits[0].__class__.__name__) == "Coins":
                 self.coinCount += 1
-            if str(hits[0].__class__.__name__) == "Enemy":
+            if str(hits[0].__class__.__name__) == "Enemies":
                 self.hitpoints -= 1
 
 
@@ -82,11 +88,22 @@ class Player(Sprite):
         self.rect.y = self.y
         # add y collision later
         self.collide_with_walls('y')
-        self.collide_with_group(self.game.power_ups, True)
+
+        if self.game.countdown.cd < 1:
+            self.cooling = False
+        if not self.cooling:
+            self.status = ""
+            self.speed = 300
+        if self.status == "Flash":
+            self.speed = 600
+        
         self.collide_with_group(self.game.coins, True)
+        self.collide_with_group(self.game.power_ups, True)
         self.collide_with_group(self.game.enemies, False)
         self.rect.width = self.rect.width
         self.rect.height = self.rect.height
+        if (self.hitpoints == 0):
+            pg.quit()
 
 # Create a wall
 class Wall(Sprite):
