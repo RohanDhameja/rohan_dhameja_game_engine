@@ -64,6 +64,9 @@ class Player(Sprite):
                 self.game.countdown.cd = 5
                 self.cooling = True
                 self.status = "Invincible"
+            if str(hits[0].__class__.__name__) == "Enemies2":
+                if self.status != "Invincible":
+                    self.hitpoints -= 1
 
     # makes it so that, when player collides with walls, the player does not move into the wall
     def collide_with_walls(self, dir):
@@ -114,6 +117,7 @@ class Player(Sprite):
         self.collide_with_group(self.game.enemies, False)
         self.collide_with_group(self.game.stairs, False)
         self.collide_with_group(self.game.shield, True)
+        self.collide_with_group(self.game.enemies2, False)
         self.rect.width = self.rect.width
         self.rect.height = self.rect.height
 
@@ -245,3 +249,54 @@ class Shield(Sprite):
         self.rect.x = x * TILESIZE
         self.rect.y = y * TILESIZE
 
+# Enemies that move around in the same area
+class Enemies2(Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.enemies2
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE, TILESIZE))
+        self.image = game.enemy_img
+        self.rect = self.image.get_rect()
+        self.rect = self.image.get_rect()
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.rect.x = x * TILESIZE
+        self.rect.y = y * TILESIZE
+        self.vx, self.vy = ENEMY_SPEED, ENEMY_SPEED
+        self.speed = 1
+        if self.vx != 0 and self.vy != 0:
+            self.vx *= 0.7071
+            self.vy *= 0.7071
+
+
+    # wall collisions; horizontally based
+    def collide_with_walls(self, dir):
+        if dir == 'x':
+            hits = pg.sprite.spritecollide(self, self.game.walls, False)
+            if hits:
+                if self.vx > 0:
+                    self.x = hits[0].rect.left - self.rect.width
+                if self.vx < 0:
+                    self.x = hits[0].rect.right 
+                self.vx = -self.vx
+                self.rect.x = self.x
+        
+    # wall collisions; vertically based
+        if dir == 'y':
+            hits = pg.sprite.spritecollide(self, self.game.walls, False)
+            if hits:
+                if self.vy > 0:
+                    self.y = hits[0].rect.top - self.rect.height
+                if self.vy < 0:
+                    self.y = hits[0].rect.bottom
+                self.vy = -self.vy
+                self.rect.y = self.y
+
+    def update(self):
+        self.x += self.vx * self.game.dt
+        self.y += self.vy * self.game.dt
+        self.rect.x = self.x
+        self.collide_with_walls('x')
+        self.rect.y = self.y
+        self.collide_with_walls('y')

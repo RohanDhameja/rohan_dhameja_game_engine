@@ -76,6 +76,8 @@ class Game:
                         Stairs(self, col, row)
                     if tile == 'B':
                         Shield(self, col, row)
+                    if tile == 'R':
+                        Enemies2(self, col, row)
 
     def new(self):
         self.countdown = Timer(self)
@@ -87,6 +89,7 @@ class Game:
         self.enemies = pg.sprite.Group()
         self.stairs = pg.sprite.Group()
         self.shield = pg.sprite.Group()
+        self.enemies2 = pg.sprite.Group()
         #self.player = Player(self, 10, 10)
         #for x in range(10, 20):
         #    Wall(self, x, 5)
@@ -106,6 +109,8 @@ class Game:
                     Stairs(self, col, row)
                 if tile == 'B':
                     Shield(self, col, row)
+                if tile == 'R':
+                        Enemies2(self, col, row)
 
     def run(self):
         self.playing = True
@@ -145,8 +150,8 @@ class Game:
         self.screen.fill(BGCOLOR)
         self.draw_grid()
         self.all_sprites.draw(self.screen)
-        self.draw_text(self.screen, "Coins: " + str(self.coinCount), 42, WHITE, 1, 1)
-        self.draw_text(self.screen, "Hitpoints: " + str(self.player.hitpoints), 42, WHITE, 8, 1)
+        self.draw_text(self.screen, "Coins: " + str(self.coinCount), 42, BLACK, 1, 1)
+        self.draw_text(self.screen, "Hitpoints: " + str(self.player.hitpoints), 42, BLACK, 8, 1)
         pg.display.flip()
 
     # Take input from keyboard and move player
