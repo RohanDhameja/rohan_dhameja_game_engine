@@ -21,12 +21,16 @@ class Game:
         self.clock = pg.time.Clock()
         pg.key.set_repeat(500, 100)
         self.load_data()
+        self.coinCount = 0
     
     #load save game data etc...
     def load_data(self):
+        self.level = 1
+
         game_folder = path.dirname(__file__)
         self.img_folder = path.join(game_folder, 'images')
 
+        # Add the images files
         self.speed_powerup_img = pg.image.load(path.join(self.img_folder, 'speed_powerup.jpg')).convert_alpha()
         self.enemy_img = pg.image.load(path.join(self.img_folder, 'enemy.jpg')).convert_alpha()
         self.player_img = pg.image.load(path.join(self.img_folder, 'hero.jpg')).convert_alpha()
@@ -34,11 +38,44 @@ class Game:
 
 
         self.map_data = []
-        with open(path.join(game_folder, 'map.txt'), 'rt') as f:
+        with open(path.join(game_folder, 'map' + str(self.level) + '.txt'), 'rt') as f:
             for line in f:
                 self.map_data.append(line)
-                print(self.map_data)
-                # print(enumerate(self.map_data))
+                # print(self.map1_data)
+                # print(enumerate(self.map1_data))
+    
+    # Changing the map level
+    def change_levels(self):
+        game_folder = path.dirname(__file__)
+
+        # Destroy the sprites from the past map
+        if self.player.next_map == True:
+            self.level += 1
+            self.player.next_map = False
+            for i in self.all_sprites:
+                i.kill()
+
+            # load the new map, and create all the sprites
+            self.map_data = []
+            with open(path.join(game_folder, 'map' + str(self.level) + '.txt'), 'rt') as f:
+                for line in f:
+                    self.map_data.append(line)
+            for row, tiles in enumerate(self.map_data):
+                for col, tile in enumerate(tiles):
+                    if tile == '1':
+                        Wall(self, col, row)
+                    if tile == 'P':
+                        self.player = Player(self, col, row)
+                    if tile == 'U':
+                        SpeedPowerUp(self, col, row)
+                    if tile == 'C':
+                        Coins(self, col, row)
+                    if tile == 'E':
+                        Enemies(self, col, row)
+                    if tile == 'S':
+                        Stairs(self, col, row)
+                    if tile == 'B':
+                        Shield(self, col, row)
 
     def new(self):
         self.countdown = Timer(self)
@@ -48,6 +85,8 @@ class Game:
         self.power_ups = pg.sprite.Group()
         self.coins = pg.sprite.Group()
         self.enemies = pg.sprite.Group()
+        self.stairs = pg.sprite.Group()
+        self.shield = pg.sprite.Group()
         #self.player = Player(self, 10, 10)
         #for x in range(10, 20):
         #    Wall(self, x, 5)
@@ -58,11 +97,15 @@ class Game:
                 if tile == 'P':
                     self.player = Player(self, col, row)
                 if tile == 'U':
-                    PowerUp(self, col, row)
+                    SpeedPowerUp(self, col, row)
                 if tile == 'C':
                     Coins(self, col, row)
                 if tile == 'E':
                     Enemies(self, col, row)
+                if tile == 'S':
+                    Stairs(self, col, row)
+                if tile == 'B':
+                    Shield(self, col, row)
 
     def run(self):
         self.playing = True
@@ -79,6 +122,7 @@ class Game:
     def update(self):
         self.all_sprites.update()
         self.countdown.ticking()
+        self.change_levels()
 
     # Create a grid with dimensions WIDTH and HEIGHT
     def draw_grid(self):
@@ -87,6 +131,7 @@ class Game:
         for y in range(0, WIDTH, TILESIZE):
             pg.draw.line(self.screen, LIGHTGREY, (0, y), (WIDTH, y))
 
+    # draw text on self
     def draw_text(self, surface, text, size, color, x, y):
         font_name = pg.font.match_font('arial')
         font = pg.font.Font(font_name, size)
@@ -95,12 +140,13 @@ class Game:
         text_rect.topleft = (x*TILESIZE,y*TILESIZE)
         surface.blit(text_surface, text_rect)
 
+    # call the draw_text function with parameters
     def draw(self):
         self.screen.fill(BGCOLOR)
         self.draw_grid()
         self.all_sprites.draw(self.screen)
-        self.draw_text(self.screen, ("Coins: " + str(self.player.coinCount) + ", Hitpoints: " + str(self.player.hitpoints)), 42, BLACK, 1, 1)
-        # self.draw_text(self.screen, "cool" + str(self.player.cooling), 30, BLACK, 10, 1)
+        self.draw_text(self.screen, "Coins: " + str(self.coinCount), 42, WHITE, 1, 1)
+        self.draw_text(self.screen, "Hitpoints: " + str(self.player.hitpoints), 42, WHITE, 8, 1)
         pg.display.flip()
 
     # Take input from keyboard and move player

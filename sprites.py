@@ -8,6 +8,7 @@ from settings import *
 # Create a player class
 class Player(Sprite):
     def __init__(self, game, x, y):
+        # initialize all variables for self
         self.groups = game.all_sprites
         Sprite.__init__(self, self.groups)
         self.game = game
@@ -17,15 +18,16 @@ class Player(Sprite):
         self.x = x * TILESIZE
         self.y = y * TILESIZE
         self.speed = 300
-        self.coinCount = 0
-        self.hitpoints = 10
+        self.hitpoints = 1
         self.cooling = False
         self.status = ""
+        self.next_map = False
 
     # def move(self, dx = 0, dy = 0):
     #     self.x += dx
     #     self.y += dy
     
+    # take keyboard input from user
     def get_keys(self):
         self.vx, self.vy = 0, 0
         keys = pg.key.get_pressed()
@@ -41,21 +43,29 @@ class Player(Sprite):
             self.vx *= 0.7071
             self.vy *= 0.7071
 
+    # function with commands for when player collides with another sprite
     def collide_with_group(self, group, kill):
         hits = pg.sprite.spritecollide(self, group, kill)
         if hits:
-            if str(hits[0].__class__.__name__) == "PowerUp":
-                self.game.countdown.cd = 5
+            if str(hits[0].__class__.__name__) == "SpeedPowerUp":
+                self.game.countdown.cd = 10
                 self.cooling = True
                 # print(effect)
                 # print(self.cooling)
                 self.status = "Flash"
             if str(hits[0].__class__.__name__) == "Coins":
-                self.coinCount += 1
+                self.game.coinCount += 1
             if str(hits[0].__class__.__name__) == "Enemies":
-                self.hitpoints -= 1
+                if self.status != "Invincible":
+                    self.hitpoints -= 1
+            if str(hits[0].__class__.__name__) == "Stairs":
+                self.next_map = True
+            if str(hits[0].__class__.__name__) == "Shield":
+                self.game.countdown.cd = 5
+                self.cooling = True
+                self.status = "Invincible"
 
-
+    # makes it so that, when player collides with walls, the player does not move into the wall
     def collide_with_walls(self, dir):
         if dir == 'x':
             hits = pg.sprite.spritecollide(self, self.game.walls, False)
@@ -89,6 +99,7 @@ class Player(Sprite):
         # add y collision later
         self.collide_with_walls('y')
 
+        # adds a cooldown to the speed powerup
         if self.game.countdown.cd < 1:
             self.cooling = False
         if not self.cooling:
@@ -97,11 +108,16 @@ class Player(Sprite):
         if self.status == "Flash":
             self.speed = 600
         
+        # choose to kill or not kill the sprite when colliding with other groups
         self.collide_with_group(self.game.coins, True)
         self.collide_with_group(self.game.power_ups, True)
         self.collide_with_group(self.game.enemies, False)
+        self.collide_with_group(self.game.stairs, False)
+        self.collide_with_group(self.game.shield, True)
         self.rect.width = self.rect.width
         self.rect.height = self.rect.height
+
+        # end game if player has 0 hitpoints
         if (self.hitpoints == 0):
             pg.quit()
 
@@ -112,16 +128,16 @@ class Wall(Sprite):
         Sprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image.fill(GREEN)
+        self.image.fill(RED)
         self.rect = self.image.get_rect()
         self.x = x
         self.y = y
         self.rect.x = x * TILESIZE
         self.rect.y = y * TILESIZE
 
-class PowerUp(Sprite):
+# Create a speed powerup with an image
+class SpeedPowerUp(Sprite):
     def __init__(self, game, x, y):
-        # add powerup groups later....
         self.groups = game.all_sprites, game.power_ups
         Sprite.__init__(self, self.groups)
         self.game = game
@@ -132,6 +148,7 @@ class PowerUp(Sprite):
         self.rect.x = x * TILESIZE
         self.rect.y = y * TILESIZE
 
+# Create a coin sprite with an image
 class Coins(Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites, game.coins
@@ -143,7 +160,8 @@ class Coins(Sprite):
         self.y = y
         self.rect.x = x * TILESIZE
         self.rect.y = y * TILESIZE
-        
+
+# Create an enemy with an image
 class Enemies(Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites, game.enemies
@@ -158,6 +176,7 @@ class Enemies(Sprite):
         self.y = y * TILESIZE
         self.speed = 100
     
+    # Make the enemies unable to pass through walls
     def collide_with_walls(self, dir):
         if dir == 'x':
             hits = pg.sprite.spritecollide(self, self.game.walls, False)
@@ -178,10 +197,12 @@ class Enemies(Sprite):
                 self.vy = 0
                 self.rect.y = self.y
 
+    # Update the enemy
     def update(self):
         self.x += self.vx * self.game.dt
         self.y += self.vy * self.game.dt
         
+        # Make the enemy follow the player
         if self.rect.x < self.game.player.rect.x:
             self.vx = 100
         if self.rect.x > self.game.player.rect.x:
@@ -194,3 +215,33 @@ class Enemies(Sprite):
         self.collide_with_walls('x')
         self.rect.y = self.y
         self.collide_with_walls('y')
+
+# Create a stairs sprite - to go to the next level
+class Stairs(Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.stairs
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE, TILESIZE))
+        self.image.fill(GREEN)
+        self.rect = self.image.get_rect()
+        self.x = x
+        self.y = y
+        self.rect.x = x * TILESIZE
+        self.rect.y = y * TILESIZE
+
+# Create a shield powerup
+class Shield(Sprite):
+    def __init__(self, game, x, y):
+        # add powerup groups later....
+        self.groups = game.all_sprites, game.shield
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE, TILESIZE))
+        self.image.fill(YELLOW)
+        self.rect = self.image.get_rect()
+        self.x = x
+        self.y = y
+        self.rect.x = x * TILESIZE
+        self.rect.y = y * TILESIZE
+
