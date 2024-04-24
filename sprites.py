@@ -4,6 +4,26 @@
 import pygame as pg
 from pygame.sprite import Sprite
 from settings import *
+from os import path
+
+
+vec = pg.math.Vector2
+
+SPRITESHEET = "stoopid.png"
+
+game_folder = path.dirname(__file__)
+img_folder = path.join(game_folder, 'images')
+
+class Spritesheet:
+    def __init__(self, filename):
+        self.spritesheet = pg.image.load(filename).convert()
+
+    def get_image(self, x, y, width, height):
+        image = pg.Surface((width, height))
+        image.blit(self.spritesheet, (0, 0), (x, y, width, height))
+        image = pg.transform.scale(image, (width * 1, height * 1))
+        return image
+
 
 # Create a player class
 class Player(Sprite):
@@ -12,7 +32,10 @@ class Player(Sprite):
         self.groups = game.all_sprites
         Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = game.player_img
+        # self.image = game.player_img
+        self.spritesheet = Spritesheet(path.join(img_folder, SPRITESHEET))
+        self.load_images()
+        self.image = self.standing_frames[0]
         self.rect = self.image.get_rect()
         self.vx, self.vy = 0, 0
         self.x = x * TILESIZE
@@ -22,6 +45,11 @@ class Player(Sprite):
         self.cooling = False
         self.status = ""
         self.next_map = False
+        self.current_frame = 0
+        self.last_update = 0
+        self.material = True
+        self.jumping = False
+        self.walking = False
 
     # def move(self, dx = 0, dy = 0):
     #     self.x += dx
@@ -89,7 +117,31 @@ class Player(Sprite):
                 self.vy = 0
                 self.rect.y = self.y
 
+    def load_images(self):
+        self.standing_frames = [self.spritesheet.get_image(0,0, 32, 32), 
+                                self.spritesheet.get_image(32,0, 32, 32),
+
+                                ]
+        self.walking_frames = [
+                                self.spritesheet.get_image(64,0, 32, 32),
+                                self.spritesheet.get_image(96,0, 32, 32),
+                                ]
+    
+    def animate(self):
+        now = pg.time.get_ticks()
+        if now - self.last_update > 350:
+            self.last_update = now
+            self.current_frame = (self.current_frame + 1) % len(self.standing_frames)
+            bottom = self.rect.bottom
+            if not self.walking:
+                self.image = self.standing_frames[self.current_frame]
+            else:
+                self.image = self.walking_frames[self.current_frame]
+            self.rect = self.image.get_rect()
+            self.rect.bottom = bottom
+
     def update(self):
+        self.animate()
         # self.rect.x = self.x * TILESIZE
         # self.rect.y = self.y * TILESIZE
         self.get_keys()

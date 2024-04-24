@@ -148,7 +148,7 @@ class Game:
     # call the draw_text function with parameters
     def draw(self):
         self.screen.fill(BGCOLOR)
-        self.draw_grid()
+        # self.draw_grid()
         self.all_sprites.draw(self.screen)
         self.draw_text(self.screen, "Coins: " + str(self.coinCount), 42, BLACK, 1, 1)
         self.draw_text(self.screen, "Hitpoints: " + str(self.player.hitpoints), 42, BLACK, 8, 1)
