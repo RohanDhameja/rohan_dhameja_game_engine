@@ -10,7 +10,7 @@ from random import randint
 from os import path
 from time import sleep
 
-
+print(pg.font.get_fonts())
 # Create a game class to make a video game
 class Game:
     #Defining the game class
@@ -142,7 +142,7 @@ class Game:
 
     # draw text on self
     def draw_text(self, surface, text, size, color, x, y):
-        font_name = pg.font.match_font('arial')
+        font_name = pg.font.match_font('stencil')
         font = pg.font.Font(font_name, size)
         text_surface = font.render(text, True, color)
         text_rect = text_surface.get_rect()
@@ -157,7 +157,7 @@ class Game:
         self.draw_text(self.screen, "Coins: " + str(self.coinCount), 42, BLACK, 1, 1)
         self.draw_text(self.screen, "Hitpoints: " + str(self.player.hitpoints), 42, BLACK, 8, 1)
         pg.display.flip()
-
+    
     # Take input from keyboard and move player
     def events(self):
         for event in pg.event.get():
@@ -177,11 +177,15 @@ class Game:
     def show_start_screen(self):
         self.screen.fill(BGCOLOR)
         keys = pg.key.get_pressed()
+        self.draw_text(self.screen, "Escape the creatures and collect coins!", 42, BLACK, 3, 9)
+        self.draw_text(self.screen, "Open doors to new levels!", 42, BLACK, 7, 11)
+        self.draw_text(self.screen, "Find powerups for extra speed and shields!", 42, BLACK, 1, 13)
+        self.draw_text(self.screen, "Press the spacebar to begin!", 42, BLACK, 6, 20)
+
         if keys[pg.K_SPACE]:
             self.gamestage = "playing"
         pg.display.flip()
         self.run()
-        #self.draw_text(self.screen)
 
     def show_go_screen(self):
         pass
