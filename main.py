@@ -22,6 +22,7 @@ class Game:
         pg.key.set_repeat(500, 100)
         self.load_data()
         self.coinCount = 0
+        self.gamestage = "start"
     
     #load save game data etc...
     def load_data(self):
@@ -114,12 +115,15 @@ class Game:
 
     def run(self):
         self.playing = True
-        while self.playing:
+        while self.playing: 
             self.dt = self.clock.tick(FPS) / 1000
             self.events()
-            self.update()
-            self.draw()
-    
+            if self.gamestage == "start":
+                self.show_start_screen()
+            if self.gamestage == "playing":
+                self.update()
+                self.draw()
+
     def quit(self):
         pg.quit()
         sys.exit()
@@ -171,7 +175,13 @@ class Game:
     
 
     def show_start_screen(self):
-        pass
+        self.screen.fill(BGCOLOR)
+        keys = pg.key.get_pressed()
+        if keys[pg.K_SPACE]:
+            self.gamestage = "playing"
+        pg.display.flip()
+        self.run()
+        #self.draw_text(self.screen)
 
     def show_go_screen(self):
         pass
