@@ -352,3 +352,82 @@ class Enemies2(Sprite):
         self.collide_with_walls('x')
         self.rect.y = self.y
         self.collide_with_walls('y')
+
+# Shop for player to buy speed boost (used ChatGPT)
+class Shop(Sprite):
+    def __init__(self, game):
+        self.game = game 
+        self.visible = False
+        self.width = 260
+        self.height = 160
+        self.color = YELLOW
+        self.x = 50
+        self.y = 550
+        self.shop_surface = pg.Surface((self.width, self.height), flags=pg.SRCALPHA)
+        self.shop_surface.fill(YELLOW)
+
+    # create a box with a shop on the screen
+    def draw_shop(self, screen):
+        if self.visible:
+            self.shop_surface.fill(YELLOW)
+            pg.draw.rect(self.shop_surface, self.color, (self.x, self.y, TILESIZE * 8, TILESIZE * 5))
+            screen.blit(self.shop_surface, (self.x, self.y))
+
+    # toggles if the shop is on the screen or not
+    def toggle_visibility(self):
+        self.visible = not self.visible
+    
+# allows player to click (used ChatGPT)
+class Button:
+    #Initialize button
+    def __init__(self, game, text, position, size, color, color2, action = None, clickable = True):
+        self.game = game
+        self.text = text
+        self.position = position
+        self.size = size
+        self.font = pg.font.Font(None, 32)
+        self.color = color
+        self.color2 = color2
+        self.action = action
+        self.hovered = False
+        self.clickable = clickable
+
+    # draw the object
+    def draw(self, screen):
+        clickable = self.is_clickable()
+        button_rect = pg.Rect(self.position, self.size)
+
+        # Change button color
+        if self.hovered and self.clickable:
+            color = self.color2
+        else:
+            color = self.color
+
+        pg.draw.rect(screen, color, button_rect)
+        text_surface = self.font.render(self.text, True, pg.Color('white'))
+        text_rect = text_surface.get_rect(center=button_rect.center)
+        screen.blit(text_surface, text_rect)
+
+    # check for click
+    def handle_event(self, event):
+        # only changes color or is clicked if conditions are met
+        if self.clickable:
+            if event.type == pg.MOUSEMOTION:
+                # Check if mouse is hovering over the button
+                self.hovered = self.is_hovered(event.pos)
+            elif event.type == pg.MOUSEBUTTONDOWN:
+                if self.hovered and self.action:
+                    # Execute button action if clicked
+                    self.action()
+
+    # Function to check mouse position
+    def is_hovered(self, mouse_pos):
+        button_rect = pg.Rect(self.position, self.size)
+        return button_rect.collidepoint(mouse_pos)
+
+    # Boolean that tells if the player can click the button
+    def is_clickable(self):
+        if self.game.coinCount >= 5:
+            self.clickable = True
+        else:
+            self.clickable = False  

@@ -10,7 +10,6 @@ from random import randint
 from os import path
 from time import sleep
 
-print(pg.font.get_fonts())
 # Create a game class to make a video game
 class Game:
     #Defining the game class
@@ -23,6 +22,8 @@ class Game:
         self.load_data()
         self.coinCount = 0
         self.gamestage = "start"
+        self.shop_open = False
+        self.shop = Shop(self)
     
     #load save game data etc...
     def load_data(self):
@@ -91,6 +92,8 @@ class Game:
         self.stairs = pg.sprite.Group()
         self.shield = pg.sprite.Group()
         self.enemies2 = pg.sprite.Group()
+        self.shop = Shop(g)
+        self.button = Button(self, "BUY", (self.shop.x + 55, self.shop.y + 100), (150, 50), GREEN, RED, action=self.button_action, clickable = True)
         #self.player = Player(self, 10, 10)
         #for x in range(10, 20):
         #    Wall(self, x, 5)
@@ -156,7 +159,25 @@ class Game:
         self.all_sprites.draw(self.screen)
         self.draw_text(self.screen, "Coins: " + str(self.coinCount), 42, BLACK, 1, 1)
         self.draw_text(self.screen, "Hitpoints: " + str(self.player.hitpoints), 42, BLACK, 8, 1)
+        if self.player.status == "Invincible":
+            self.draw_text(self.screen, "You are invincible for 5 seconds", 42, BLACK, 5, 9)
+        if self.player.status == "Flash":
+            self.draw_text(self.screen, "You are speedy for 10 seconds", 42, BLACK, 5, 9)
+
+        if self.shop.visible:
+                self.shop.draw_shop(self.screen)
+                self.button.draw(self.screen)
+                self.draw_text(self.screen, "Speed - 5", 60, BLACK, (self.shop.x + 50) / TILESIZE , (self.shop.y + 20) / TILESIZE)
+
+        # shop only opens if player has money
+        if self.coinCount > 0:
+            self.draw_text(self.screen, "Press r to open shop", 30, BLACK, 20, 1)
         pg.display.flip()
+    
+    def button_action(self):
+        if self.coinCount >= 5:
+            self.coinCount -= 5
+        self.player.speed += 100
     
     # Take input from keyboard and move player
     def events(self):
@@ -172,14 +193,19 @@ class Game:
             #         self.player.move(dy = 1)
             #     if event.key == pg.K_UP:
             #         self.player.move(dy = -1)
+            if event.type == pg.KEYDOWN:
+                if self.coinCount > 0:             
+                    if event.key == pg.K_r:
+                        self.shop.toggle_visibility()
+            self.button.handle_event(event)
     
 
     def show_start_screen(self):
         self.screen.fill(BGCOLOR)
         keys = pg.key.get_pressed()
-        self.draw_text(self.screen, "Escape the creatures and collect coins!", 42, BLACK, 3, 9)
-        self.draw_text(self.screen, "Open doors to new levels!", 42, BLACK, 7, 11)
-        self.draw_text(self.screen, "Find powerups for extra speed and shields!", 42, BLACK, 1, 13)
+        self.draw_text(self.screen, "Escape the creatures and collect coins!", 42, BLACK, 2, 8)
+        self.draw_text(self.screen, "Open doors to new levels!", 42, BLACK, 6, 10)
+        self.draw_text(self.screen, "Find powerups for extra speed and shields!", 42, BLACK, 1, 12)
         self.draw_text(self.screen, "Press the spacebar to begin!", 42, BLACK, 6, 20)
 
         if keys[pg.K_SPACE]:
