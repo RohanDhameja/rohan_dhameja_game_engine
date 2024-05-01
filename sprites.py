@@ -41,7 +41,6 @@ class Player(Sprite):
         self.x = x * TILESIZE
         self.y = y * TILESIZE
         self.speed = 300
-        self.hitpoints = 1
         self.cooling = False
         self.status = ""
         self.next_map = False
@@ -85,7 +84,7 @@ class Player(Sprite):
                 self.game.coinCount += 1
             if str(hits[0].__class__.__name__) == "Enemies":
                 if self.status != "Invincible":
-                    self.hitpoints -= 1
+                    self.game.hitpoints -= 1
             if str(hits[0].__class__.__name__) == "Stairs":
                 self.next_map = True
             if str(hits[0].__class__.__name__) == "Shield":
@@ -94,7 +93,7 @@ class Player(Sprite):
                 self.status = "Invincible"
             if str(hits[0].__class__.__name__) == "Enemies2":
                 if self.status != "Invincible":
-                    self.hitpoints -= 1
+                    self.game.hitpoints -= 1
 
     # makes it so that, when player collides with walls, the player does not move into the wall
     def collide_with_walls(self, dir):
@@ -174,7 +173,7 @@ class Player(Sprite):
         self.rect.height = self.rect.height
 
         # end game if player has 0 hitpoints
-        if (self.hitpoints == 0):
+        if (self.game.hitpoints == 0):
             pg.quit()
 
 # Create a wall
@@ -427,7 +426,7 @@ class Button:
 
     # Boolean that tells if the player can click the button
     def is_clickable(self):
-        if self.game.coinCount >= 5:
+        if self.game.coinCount >= 6:
             self.clickable = True
         else:
             self.clickable = False  

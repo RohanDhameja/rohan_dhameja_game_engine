@@ -24,6 +24,7 @@ class Game:
         self.gamestage = "start"
         self.shop_open = False
         self.shop = Shop(self)
+        self.hitpoints = 3
     
     #load save game data etc...
     def load_data(self):
@@ -158,7 +159,7 @@ class Game:
         # self.draw_grid()
         self.all_sprites.draw(self.screen)
         self.draw_text(self.screen, "Coins: " + str(self.coinCount), 42, BLACK, 1, 1)
-        self.draw_text(self.screen, "Hitpoints: " + str(self.player.hitpoints), 42, BLACK, 8, 1)
+        self.draw_text(self.screen, "Hitpoints: " + str(self.hitpoints), 42, BLACK, 8, 1)
         if self.player.status == "Invincible":
             self.draw_text(self.screen, "You are invincible for 5 seconds", 42, BLACK, 5, 9)
         if self.player.status == "Flash":
@@ -167,7 +168,7 @@ class Game:
         if self.shop.visible:
                 self.shop.draw_shop(self.screen)
                 self.button.draw(self.screen)
-                self.draw_text(self.screen, "Speed - 5", 60, BLACK, (self.shop.x + 50) / TILESIZE , (self.shop.y + 20) / TILESIZE)
+                self.draw_text(self.screen, "Extra health - 6", 30, BLACK, (self.shop.x + 20) / TILESIZE , (self.shop.y + 20) / TILESIZE)
 
         # shop only opens if player has money
         if self.coinCount > 0:
@@ -175,9 +176,9 @@ class Game:
         pg.display.flip()
     
     def button_action(self):
-        if self.coinCount >= 5:
-            self.coinCount -= 5
-        self.player.speed += 100
+        if self.coinCount >= 6:
+            self.coinCount -= 6
+        self.hitpoints += 3
     
     # Take input from keyboard and move player
     def events(self):
