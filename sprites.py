@@ -27,7 +27,7 @@ class Spritesheet:
 
 # Create a player class
 class Player(Sprite):
-    def __init__(self, game, x, y):
+    def __init__(self, game, x, y, shop):
         # initialize all variables for self
         self.groups = game.all_sprites
         Sprite.__init__(self, self.groups)
@@ -49,6 +49,7 @@ class Player(Sprite):
         self.material = True
         self.jumping = False
         self.walking = False
+        self.shop = shop
 
     # def move(self, dx = 0, dy = 0):
     #     self.x += dx
@@ -140,41 +141,42 @@ class Player(Sprite):
             self.rect.bottom = bottom
 
     def update(self):
-        self.animate()
-        # self.rect.x = self.x * TILESIZE
-        # self.rect.y = self.y * TILESIZE
-        self.get_keys()
-        self.x += self.vx * self.game.dt
-        self.y += self.vy * self.game.dt
-        self.rect.x = self.x
-        # add x collision later
-        self.collide_with_walls('x')
-        self.rect.y = self.y
-        # add y collision later
-        self.collide_with_walls('y')
+        if not self.shop.visible:
+            self.animate()
+            # self.rect.x = self.x * TILESIZE
+            # self.rect.y = self.y * TILESIZE
+            self.get_keys()
+            self.x += self.vx * self.game.dt
+            self.y += self.vy * self.game.dt
+            self.rect.x = self.x
+            # add x collision later
+            self.collide_with_walls('x')
+            self.rect.y = self.y
+            # add y collision later
+            self.collide_with_walls('y')
 
-        # adds a cooldown to the speed powerup
-        if self.game.countdown.cd < 1:
-            self.cooling = False
-        if not self.cooling:
-            self.status = ""
-            self.speed = 300
-        if self.status == "Flash":
-            self.speed = 600
+            # adds a cooldown to the speed powerup
+            if self.game.countdown.cd < 1:
+                self.cooling = False
+            if not self.cooling:
+               self.status = ""
+               self.speed = 300
+            if self.status == "Flash":
+                self.speed = 600
         
-        # choose to kill or not kill the sprite when colliding with other groups
-        self.collide_with_group(self.game.coins, True)
-        self.collide_with_group(self.game.power_ups, True)
-        self.collide_with_group(self.game.enemies, False)
-        self.collide_with_group(self.game.stairs, False)
-        self.collide_with_group(self.game.shield, True)
-        self.collide_with_group(self.game.enemies2, False)
-        self.rect.width = self.rect.width
-        self.rect.height = self.rect.height
+           # choose to kill or not kill the sprite when colliding with other groups
+            self.collide_with_group(self.game.coins, True)
+            self.collide_with_group(self.game.power_ups, True)
+            self.collide_with_group(self.game.enemies, False)
+            self.collide_with_group(self.game.stairs, False)
+            self.collide_with_group(self.game.shield, True)
+            self.collide_with_group(self.game.enemies2, False)
+            self.rect.width = self.rect.width
+            self.rect.height = self.rect.height
 
-        # end game if player has 0 hitpoints
-        if (self.game.hitpoints == 0):
-            pg.quit()
+            # end game if player has 0 hitpoints
+            if (self.game.hitpoints == 0):
+                pg.quit()
 
 # Create a wall
 class Wall(Sprite):
@@ -218,7 +220,7 @@ class Coins(Sprite):
 
 # Create an enemy with an image
 class Enemies(Sprite):
-    def __init__(self, game, x, y):
+    def __init__(self, game, x, y, shop):
         self.groups = game.all_sprites, game.enemies
         Sprite.__init__(self, self.groups)
         self.game = game
@@ -230,6 +232,7 @@ class Enemies(Sprite):
         self.x = x * TILESIZE
         self.y = y * TILESIZE
         self.speed = 100
+        self.shop = shop
     
     # Make the enemies unable to pass through walls
     def collide_with_walls(self, dir):
@@ -254,22 +257,23 @@ class Enemies(Sprite):
 
     # Update the enemy
     def update(self):
-        self.x += self.vx * self.game.dt
-        self.y += self.vy * self.game.dt
-        
-        # Make the enemy follow the player
-        if self.rect.x < self.game.player.rect.x:
-            self.vx = 100
-        if self.rect.x > self.game.player.rect.x:
-            self.vx = -100    
-        if self.rect.y < self.game.player.rect.y:
-            self.vy = 100
-        if self.rect.y > self.game.player.rect.y:
-            self.vy = -100
-        self.rect.x = self.x
-        self.collide_with_walls('x')
-        self.rect.y = self.y
-        self.collide_with_walls('y')
+        if not self.shop.visible:
+            self.x += self.vx * self.game.dt
+            self.y += self.vy * self.game.dt
+
+            # Make the enemy follow the player
+            if self.rect.x < self.game.player.rect.x:
+                self.vx = 100
+            if self.rect.x > self.game.player.rect.x:
+                self.vx = -100    
+            if self.rect.y < self.game.player.rect.y:
+                self.vy = 100
+            if self.rect.y > self.game.player.rect.y:
+                self.vy = -100
+            self.rect.x = self.x
+            self.collide_with_walls('x')
+            self.rect.y = self.y
+            self.collide_with_walls('y')
 
 # Create a stairs sprite - to go to the next level
 class Stairs(Sprite):
@@ -302,7 +306,7 @@ class Shield(Sprite):
 
 # Enemies that move around in the same area
 class Enemies2(Sprite):
-    def __init__(self, game, x, y):
+    def __init__(self, game, x, y, shop):
         self.groups = game.all_sprites, game.enemies2
         Sprite.__init__(self, self.groups)
         self.game = game
@@ -310,6 +314,7 @@ class Enemies2(Sprite):
         self.image = game.enemy_img
         self.rect = self.image.get_rect()
         self.rect = self.image.get_rect()
+        self.shop = shop
         self.x = x * TILESIZE
         self.y = y * TILESIZE
         self.rect.x = x * TILESIZE
@@ -345,12 +350,13 @@ class Enemies2(Sprite):
                 self.rect.y = self.y
 
     def update(self):
-        self.x += self.vx * self.game.dt
-        self.y += self.vy * self.game.dt
-        self.rect.x = self.x
-        self.collide_with_walls('x')
-        self.rect.y = self.y
-        self.collide_with_walls('y')
+        if not self.shop.visible:
+            self.x += self.vx * self.game.dt
+            self.y += self.vy * self.game.dt
+            self.rect.x = self.x
+            self.collide_with_walls('x')
+            self.rect.y = self.y
+            self.collide_with_walls('y')
 
 # Shop for player to buy speed boost (used ChatGPT)
 class Shop(Sprite):

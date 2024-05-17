@@ -68,19 +68,19 @@ class Game:
                     if tile == '1':
                         Wall(self, col, row)
                     if tile == 'P':
-                        self.player = Player(self, col, row)
+                        self.player = Player(self, col, row, self.shop)
                     if tile == 'U':
                         SpeedPowerUp(self, col, row)
                     if tile == 'C':
                         Coins(self, col, row)
                     if tile == 'E':
-                        Enemies(self, col, row)
+                        Enemies(self, col, row, self.shop)
                     if tile == 'S':
                         Stairs(self, col, row)
                     if tile == 'B':
                         Shield(self, col, row)
                     if tile == 'R':
-                        Enemies2(self, col, row)
+                        Enemies2(self, col, row, self.shop)
 
     def new(self):
         self.countdown = Timer(self)
@@ -103,19 +103,19 @@ class Game:
                 if tile == '1':
                     Wall(self, col, row)
                 if tile == 'P':
-                    self.player = Player(self, col, row)
+                    self.player = Player(self, col, row, self.shop)
                 if tile == 'U':
                     SpeedPowerUp(self, col, row)
                 if tile == 'C':
                     Coins(self, col, row)
                 if tile == 'E':
-                    Enemies(self, col, row)
+                    Enemies(self, col, row, self.shop)
                 if tile == 'S':
                     Stairs(self, col, row)
                 if tile == 'B':
                     Shield(self, col, row)
                 if tile == 'R':
-                        Enemies2(self, col, row)
+                    Enemies2(self, col, row, self.shop)
 
     def run(self):
         self.playing = True
