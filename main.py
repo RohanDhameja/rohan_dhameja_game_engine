@@ -171,8 +171,7 @@ class Game:
                 self.draw_text(self.screen, "Extra health - 6", 30, BLACK, (self.shop.x + 20) / TILESIZE , (self.shop.y + 20) / TILESIZE)
 
         # shop only opens if player has money
-        if self.coinCount > 0:
-            self.draw_text(self.screen, "Press r to open shop", 30, BLACK, 20, 1)
+        self.draw_text(self.screen, "Press r to open shop", 30, BLACK, 20, 1)
         pg.display.flip()
     
     def button_action(self):
@@ -194,10 +193,9 @@ class Game:
             #         self.player.move(dy = 1)
             #     if event.key == pg.K_UP:
             #         self.player.move(dy = -1)
-            if event.type == pg.KEYDOWN:
-                if self.coinCount > 0:             
-                    if event.key == pg.K_r:
-                        self.shop.toggle_visibility()
+            if event.type == pg.KEYDOWN:          
+                if event.key == pg.K_r:
+                    self.shop.toggle_visibility()
             self.button.handle_event(event)
     
 
